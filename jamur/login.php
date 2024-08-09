@@ -1,19 +1,52 @@
 <?php
 session_start();
+
+// Database configuration
+$servername = "localhost"; // Change as needed
+$username = "root"; // Change as needed
+$password = "meza12345"; // Change as needed
+$dbname = "jamur"; // Change as needed
+
+// Create database connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     header("Location: index.php");
     exit;
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if ($_POST['username'] === "admin" && $_POST['password'] === "password") {
-        $_SESSION['loggedin'] = true;
-        header("Location: index.php");
-        exit;
+    // Sanitize and validate input
+    $username = $conn->real_escape_string($_POST['username']);
+    $password = $_POST['password'];
+    
+    // Prepare and execute SQL query
+    $sql = "SELECT * FROM users WHERE username = '$username'";
+    $result = $conn->query($sql);
+    
+    if ($result->num_rows === 1) {
+        $row = $result->fetch_assoc();
+        
+        // Verify password
+        if (password_verify($password, $row['password'])) {
+            $_SESSION['loggedin'] = true;
+            header("Location: index.php");
+            exit;
+        } else {
+            $error = "Invalid username or password.";
+        }
     } else {
         $error = "Invalid username or password.";
     }
 }
+
+// Close the database connection
+$conn->close();
 ?>
 
 <!DOCTYPE html>
