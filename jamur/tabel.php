@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
 $username = "root";
-$password = "";
+$password = "meza12345";
 $dbname = "jamur";
 
 // Membuat koneksi ke database

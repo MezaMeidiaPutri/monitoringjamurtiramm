@@ -5,7 +5,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
-$conn = new mysqli("localhost", "root", "", "jamur");
+$conn = new mysqli("localhost", "root", "meza12345", "jamur");
 if ($conn->connect_error) die("Koneksi gagal: " . $conn->connect_error);
 
 $sql = "SELECT temperature, humidity FROM sensor_readings ORDER BY reading_time DESC LIMIT 1";

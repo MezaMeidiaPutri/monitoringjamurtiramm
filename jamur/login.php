@@ -1,52 +1,47 @@
 <?php
 session_start();
+$error = "";
 
-// Database configuration
-$servername = "localhost"; // Change as needed
-$username = "root"; // Change as needed
-$password = "meza12345"; // Change as needed
-$dbname = "jamur"; // Change as needed
+// Database credentials
+$servername = "localhost";
+$dbusername = "root"; // Update with your database username
+$dbpassword = "meza12345"; // Update with your database password
+$dbname = "jamur";
 
-// Create database connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Create connection
+$conn = new mysqli($servername, $dbusername, $dbpassword, $dbname);
 
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-    header("Location: index.php");
-    exit;
-}
-
+// Process form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize and validate input
-    $username = $conn->real_escape_string($_POST['username']);
-    $password = $_POST['password'];
-    
-    // Prepare and execute SQL query
-    $sql = "SELECT * FROM users WHERE username = '$username'";
-    $result = $conn->query($sql);
-    
-    if ($result->num_rows === 1) {
-        $row = $result->fetch_assoc();
-        
-        // Verify password
-        if (password_verify($password, $row['password'])) {
-            $_SESSION['loggedin'] = true;
-            header("Location: index.php");
-            exit;
-        } else {
-            $error = "Invalid username or password.";
-        }
+    $inputUsername = $_POST['username'];
+    $inputPassword = $_POST['password'];
+
+    // Prepare and execute SQL statement to prevent SQL injection
+    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
+    $stmt->bind_param("ss", $inputUsername, $inputPassword); // Bind parameters
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Check if the user exists
+    if ($result->num_rows > 0) {
+        // User is authenticated
+        $_SESSION['loggedin'] = true;
+        header("Location: index.php"); // Redirect to index.php
+        exit(); // Make sure to exit after the redirection
     } else {
+        // User not found
         $error = "Invalid username or password.";
     }
-}
 
-// Close the database connection
-$conn->close();
+    // Close statement and connection
+    $stmt->close();
+    $conn->close();
+}
 ?>
 
 <!DOCTYPE html>
@@ -69,7 +64,7 @@ $conn->close();
 <body>
     <div class="login-container">
         <h2>Login</h2>
-        <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
+        <?php if ($error) echo "<p class='error'>$error</p>"; ?>
         <form method="post">
             <label>Username:</label>
             <input type="text" name="username" required>
