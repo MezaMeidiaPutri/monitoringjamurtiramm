@@ -138,3 +138,49 @@ tbody tr:nth-child(odd) {
 tbody tr:hover {
     background: #f1f1f1;
 }
+
+/* Media Queries untuk layar lebih kecil (ponsel) */
+@media (max-width: 768px) {
+    body {
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 10px;
+    }
+
+    .content {
+        margin-top: 20px; /* Memberikan ruang di atas konten jika sidebar di bawah */
+        padding: 10px;
+    }
+
+    .cards-container {
+        flex-direction: column;
+    }
+
+    .cards-row {
+        flex-direction: column;
+    }
+
+    .card {
+        margin-bottom: 10px;
+    }
+
+    /* Untuk tabel agar bisa digulir pada perangkat kecil */
+    table {
+        width: 100%;
+        overflow-x: auto;
+        display: block;
+    }
+
+    /* Untuk grafik agar responsif */
+    canvas {
+        width: 100% !important;
+        height: auto !important;
+    }
+}
